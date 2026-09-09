@@ -1,26 +1,219 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  /* Royal Blue Horizon — ground, sky, and sea-glass */
+  --color-ink: #05070f;
+  --color-ink-2: #090d1b;
+  --color-ink-3: #0d1226;
+
+  --color-royal-950: #0a1140;
+  --color-royal-900: #101c66;
+  --color-royal-700: #1a2f9e;
+  --color-royal-500: #2b46e8;
+  --color-royal-400: #4d68ff;
+  --color-royal-300: #85a0ff;
+  --color-royal-200: #c1ceff;
+
+  --color-gold-600: #ad7a2c;
+  --color-gold-500: #d9a344;
+  --color-gold-400: #e8bd6b;
+  --color-gold-300: #f2d59a;
+
+  --color-ink-100: #f1f4ff;
+  --color-ink-200: #dfe4fa;
+  --color-ink-300: #aab3d9;
+  --color-ink-400: #7d86ae;
+  --color-ink-500: #5a6288;
+
+  --color-signal-green: #4fd68c;
+  --color-signal-amber: #e8bd6b;
+  --color-signal-red: #ef6a6a;
+
+  --font-display: var(--font-display);
+  --font-mono: var(--font-mono);
+  --font-body: var(--font-body);
+
+  --shadow-glass: 0 1px 1px rgba(9, 14, 34, 0.4), 0 20px 44px -18px rgba(4, 8, 24, 0.85);
+  --shadow-panel: 0 2px 2px rgba(6, 10, 26, 0.5), 0 32px 64px -24px rgba(3, 6, 18, 0.9);
+
+  --ease-horizon: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  color-scheme: dark;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-ink);
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: -0.011em;
+}
+
+::selection {
+  background: color-mix(in oklab, var(--color-royal-400) 45%, transparent);
+  color: var(--color-ink-100);
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-ink);
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--color-royal-700), var(--color-royal-900));
+  border-radius: 999px;
+  border: 3px solid var(--color-ink);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-royal-500);
+}
+* {
+  scrollbar-color: var(--color-royal-700) var(--color-ink);
+  scrollbar-width: thin;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-gold-400);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+input,
+textarea,
+select {
+  caret-color: var(--color-gold-400);
+}
+
+.font-tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Horizon scene: the recurring atmosphere behind every full-bleed section --- */
+.horizon-scene {
+  position: relative;
+  background:
+    radial-gradient(120% 70% at 50% 0%, rgba(77, 104, 255, 0.16), transparent 60%),
+    linear-gradient(
+      180deg,
+      var(--color-ink) 0%,
+      var(--color-ink-2) 38%,
+      var(--color-royal-950) 62%,
+      var(--color-royal-900) 78%,
+      #16225e 88%,
+      #2a3a72 94%,
+      var(--color-gold-500) 100%
+    );
+}
+
+.horizon-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in oklab, var(--color-gold-400) 70%, transparent) 20%,
+    var(--color-gold-300) 50%,
+    color-mix(in oklab, var(--color-gold-400) 70%, transparent) 80%,
+    transparent 100%
+  );
+  box-shadow: 0 0 40px 4px color-mix(in oklab, var(--color-gold-400) 55%, transparent);
+}
+
+/* --- Glass materials --- */
+.glass {
+  background: linear-gradient(
+    165deg,
+    color-mix(in oklab, white 10%, transparent),
+    color-mix(in oklab, var(--color-royal-900) 30%, transparent) 60%,
+    color-mix(in oklab, white 4%, transparent)
+  );
+  border: 1px solid color-mix(in oklab, var(--color-royal-200) 22%, transparent);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  box-shadow: var(--shadow-glass);
+}
+
+.glass-strong {
+  background: linear-gradient(
+    165deg,
+    color-mix(in oklab, white 14%, transparent),
+    color-mix(in oklab, var(--color-royal-950) 55%, transparent) 55%,
+    color-mix(in oklab, white 6%, transparent)
+  );
+  border: 1px solid color-mix(in oklab, var(--color-royal-200) 28%, transparent);
+  backdrop-filter: blur(28px) saturate(150%);
+  -webkit-backdrop-filter: blur(28px) saturate(150%);
+  box-shadow: var(--shadow-panel);
+}
+
+.glass-gold {
+  background: linear-gradient(
+    165deg,
+    color-mix(in oklab, var(--color-gold-400) 16%, transparent),
+    color-mix(in oklab, var(--color-royal-950) 40%, transparent) 65%
+  );
+  border: 1px solid color-mix(in oklab, var(--color-gold-300) 35%, transparent);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  box-shadow: var(--shadow-glass);
+}
+
+.glass-edge {
+  position: relative;
+}
+.glass-edge::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    140deg,
+    color-mix(in oklab, white 55%, transparent),
+    transparent 30%,
+    transparent 70%,
+    color-mix(in oklab, var(--color-royal-300) 40%, transparent)
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* --- Motion --- */
+@keyframes drift {
+  0% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(1.5%, -2%, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+.animate-drift {
+  animation: drift 22s var(--ease-horizon) infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.35); }
+}
+.animate-pulse-glow {
+  animation: pulse-glow 2.4s ease-in-out infinite;
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee 32s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-drift,
+  .animate-pulse-glow,
+  .animate-marquee {
+    animation: none;
+  }
 }
