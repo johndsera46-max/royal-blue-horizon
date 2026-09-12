@@ -33,8 +33,3 @@ export const EMPTY_BOOKING: BookingData = {
   phone: "",
   contactMethod: "email",
 };
-
-export function generateReference(): string {
-  const digits = Math.floor(100000 + Math.random() * 899999);
-  return `BK-2026-${digits}`;
-}

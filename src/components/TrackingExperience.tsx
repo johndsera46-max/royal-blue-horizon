@@ -1,10 +1,10 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Ship, Plane, Boxes, Check, CircleDashed, AlertTriangle } from "lucide-react";
-import { lookupShipment, EXAMPLE_TRACKING_NUMBERS, type Shipment, type ShipmentStatus } from "@/lib/tracking";
+import { Search, Ship, Plane, Boxes, Check, CircleDashed, AlertTriangle, Loader2 } from "lucide-react";
+import { EXAMPLE_TRACKING_NUMBERS, type Shipment, type ShipmentStatus } from "@/lib/tracking";
 import MiniRouteMap from "./MiniRouteMap";
 
 const STATUS_STYLES: Record<ShipmentStatus, { label: string; dot: string; text: string; bg: string }> = {
@@ -16,22 +16,39 @@ const STATUS_STYLES: Record<ShipmentStatus, { label: string; dot: string; text: 
 
 const MODE_ICON = { ocean: Ship, air: Plane, multimodal: Boxes };
 
+async function fetchShipment(trackingNumber: string): Promise<Shipment | null> {
+  const res = await fetch(`/api/track/${encodeURIComponent(trackingNumber)}`);
+  if (!res.ok) return null;
+  return res.json();
+}
+
 export default function TrackingExperience() {
   const router = useRouter();
   const params = useSearchParams();
   const initial = params.get("id") ?? "";
   const [input, setInput] = useState(initial);
-  const [shipment, setShipment] = useState<Shipment | null>(() => (initial ? lookupShipment(initial) : null));
+  const [shipment, setShipment] = useState<Shipment | null>(null);
   const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const runLookup = useCallback(async (value: string) => {
+    if (!value.trim()) return;
+    setLoading(true);
+    setError(false);
+    const result = await fetchShipment(value);
+    setShipment(result);
+    setError(!result);
+    setLoading(false);
+  }, []);
 
   useEffect(() => {
     const id = params.get("id");
     if (id) {
-      const result = lookupShipment(id);
-      setShipment(result);
-      setError(!result);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setInput(id);
+      runLookup(id);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params]);
 
   function submit(e: React.FormEvent) {
@@ -39,9 +56,7 @@ export default function TrackingExperience() {
     const trimmed = input.trim();
     if (!trimmed) return;
     router.push(`/track?id=${encodeURIComponent(trimmed)}`);
-    const result = lookupShipment(trimmed);
-    setShipment(result);
-    setError(!result);
+    runLookup(trimmed);
   }
 
   const ModeIcon = shipment ? MODE_ICON[shipment.mode] : Ship;
@@ -71,9 +86,10 @@ export default function TrackingExperience() {
         </div>
         <button
           type="submit"
-          className="rounded-xl bg-gold-400 px-6 py-3.5 text-sm font-semibold text-royal-950 transition-colors hover:bg-gold-300"
+          disabled={loading}
+          className="rounded-xl bg-gold-400 px-6 py-3.5 text-sm font-semibold text-royal-950 transition-colors hover:bg-gold-300 disabled:opacity-60"
         >
-          Track
+          {loading ? "Tracking…" : "Track"}
         </button>
       </form>
 
@@ -86,8 +102,7 @@ export default function TrackingExperience() {
             onClick={() => {
               setInput(num);
               router.push(`/track?id=${num}`);
-              setShipment(lookupShipment(num));
-              setError(false);
+              runLookup(num);
             }}
             className="font-mono text-ink-400 underline decoration-white/15 underline-offset-4 hover:text-gold-300 hover:decoration-gold-300"
           >
@@ -97,7 +112,20 @@ export default function TrackingExperience() {
       </div>
 
       <AnimatePresence mode="wait">
-        {error && (
+        {loading && (
+          <motion.div
+            key="loading"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="mt-10 flex items-center gap-2 text-sm text-ink-400"
+          >
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Looking up shipment…
+          </motion.div>
+        )}
+
+        {!loading && error && (
           <motion.div
             key="error"
             initial={{ opacity: 0, y: 8 }}
@@ -113,7 +141,7 @@ export default function TrackingExperience() {
           </motion.div>
         )}
 
-        {shipment && !error && (
+        {!loading && shipment && !error && (
           <motion.div
             key={shipment.trackingNumber}
             initial={{ opacity: 0, y: 12 }}

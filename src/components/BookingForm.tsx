@@ -13,7 +13,7 @@ import {
   CheckCircle2,
   Lock,
 } from "lucide-react";
-import { EMPTY_BOOKING, generateReference, type BookingData } from "@/lib/booking";
+import { EMPTY_BOOKING, type BookingData } from "@/lib/booking";
 
 const STEPS = ["Shipment", "Cargo", "Contact", "Review"] as const;
 type Errors = Partial<Record<keyof BookingData, string>>;
@@ -51,6 +51,7 @@ export default function BookingForm() {
   const [errors, setErrors] = useState<Errors>({});
   const [submitting, setSubmitting] = useState(false);
   const [reference, setReference] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   function set<K extends keyof BookingData>(key: K, value: BookingData[K]) {
     setData((d) => ({ ...d, [key]: value }));
@@ -82,17 +83,32 @@ export default function BookingForm() {
     setStep((s) => Math.min(s + 1, STEPS.length - 1));
   }
 
-  function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!validateStep(2)) {
       setStep(2);
       return;
     }
     setSubmitting(true);
-    window.setTimeout(() => {
+    setSubmitError(null);
+    try {
+      const res = await fetch("/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        setSubmitError(body.error ?? "Something went wrong submitting your request. Please try again.");
+        return;
+      }
+      const body: { reference: string } = await res.json();
+      setReference(body.reference);
+    } catch {
+      setSubmitError("Something went wrong submitting your request. Please try again.");
+    } finally {
       setSubmitting(false);
-      setReference(generateReference());
-    }, 900);
+    }
   }
 
   if (reference) {
@@ -362,6 +378,12 @@ export default function BookingForm() {
             )}
           </motion.div>
         </AnimatePresence>
+
+        {submitError && (
+          <p className="mt-6 rounded-xl border border-signal-red/25 bg-signal-red/8 px-4 py-3 text-sm text-ink-200">
+            {submitError}
+          </p>
+        )}
 
         <div className="mt-9 flex items-center justify-between border-t border-white/8 pt-6">
           <button

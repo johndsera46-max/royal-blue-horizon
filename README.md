@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Royal Blue Horizon
 
-## Getting Started
+Global freight forwarding marketing site, live shipment tracking, secure
+booking, and an admin panel — backed by a real Postgres database.
 
-First, run the development server:
+## Going live (once hosting is picked)
+
+This app now needs a host that runs a real Node server (Vercel, Fly.io,
+Render, etc.) — it's no longer a static export, because tracking, booking,
+and the admin panel all read/write a real database.
+
+1. **Provision Postgres.** Any Postgres works (Neon, Vercel Postgres, Fly
+   Postgres, Supabase). Copy `.env.example` to `.env.local` and set
+   `DATABASE_URL`.
+
+2. **Generate a session secret** and set it as `ADMIN_SESSION_SECRET`:
+   ```bash
+   node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
+   ```
+
+3. **Create the tables:**
+   ```bash
+   npm run db:migrate
+   ```
+
+4. **Create the admin login** (never commit these values — pass them inline):
+   ```bash
+   ADMIN_EMAIL=you@royalbluehorizon.com ADMIN_PASSWORD=your-password npm run db:seed-admin
+   ```
+   Re-running this updates the password for that email — it's how you
+   change the admin password later too.
+
+5. **(Optional) Seed the 4 demo shipments** already used in the pitch
+   (`RBH4821903`, `RBH1029447`, `RBH7734215`, `RBH5560098`) so tracking
+   keeps working exactly as shown before:
+   ```bash
+   npm run db:seed-shipments
+   ```
+
+6. **Set the same `DATABASE_URL` and `ADMIN_SESSION_SECRET`** as
+   environment variables on whichever host you deploy to, then deploy
+   normally (`vercel`, `fly deploy`, etc.) — no other config needed.
+
+## What's real vs. mock
+
+- **Tracking** (`/track`) — real: looks up shipments from Postgres via
+  `GET /api/track/[trackingNumber]`.
+- **Booking** (`/book`) — real: submits to Postgres via `POST /api/bookings`,
+  returns a real generated reference.
+- **Admin panel** (`/admin`) — real: single email+password login
+  (bcrypt-hashed, JWT session cookie), full CRUD on shipments, and a list/
+  status-tracker for booking requests.
+- **Live chat** — still a scripted, keyword-based widget (no real backend or
+  human agent) — this was always presented as a preview layer, not changed
+  in this pass.
+
+## Admin panel
+
+Visit `/admin/login`. There's exactly one admin account (see step 4 above)
+— no self-registration, no roles. Sessions last 12 hours. 5 failed login
+attempts locks that email out for 15 minutes (in-memory; resets if the
+server restarts).
+
+## Local development
 
 ```bash
+npm install
+cp .env.example .env.local   # fill in DATABASE_URL and ADMIN_SESSION_SECRET
+npm run db:migrate
+ADMIN_EMAIL=... ADMIN_PASSWORD=... npm run db:seed-admin
+npm run db:seed-shipments
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

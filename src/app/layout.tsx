@@ -1,8 +1,5 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, IBM_Plex_Mono, Inter } from "next/font/google";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import LiveChat from "@/components/LiveChat";
 import "./globals.css";
 
 const display = Space_Grotesk({
@@ -55,10 +52,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           with the finish review, the verdict, DESIGN.md, and every shipping
           raster carrying its provenance.
         */}
-        <Navbar />
-        <main className="flex-1">{children}</main>
-        <Footer />
-        <LiveChat />
+        {children}
       </body>
     </html>
   );
