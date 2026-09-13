@@ -1,5 +1,10 @@
 import Link from "next/link";
+import { Phone, MessageCircle } from "lucide-react";
 import Logo from "./Logo";
+
+const PHONE_DISPLAY = "+1 412 277 4544";
+const PHONE_TEL = "+14122774544";
+const WHATSAPP_URL = "https://wa.me/14122774544";
 
 const COLUMNS = [
   {
@@ -44,6 +49,24 @@ export default function Footer() {
               Ocean, air, and multimodal freight forwarding — booked, cleared,
               and tracked from origin dock to final horizon.
             </p>
+            <div className="mt-5 space-y-2.5">
+              <a
+                href={`tel:${PHONE_TEL}`}
+                className="flex items-center gap-2 text-sm text-ink-300 transition-colors hover:text-ink-100"
+              >
+                <Phone className="h-4 w-4 text-gold-400" />
+                {PHONE_DISPLAY}
+              </a>
+              <a
+                href={WHATSAPP_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-sm text-ink-300 transition-colors hover:text-ink-100"
+              >
+                <MessageCircle className="h-4 w-4 text-gold-400" />
+                Chat on WhatsApp
+              </a>
+            </div>
           </div>
 
           {COLUMNS.map((col) => (
