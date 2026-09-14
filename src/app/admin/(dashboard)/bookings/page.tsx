@@ -67,15 +67,22 @@ export default function AdminBookingsPage() {
 
             {expanded === b.id && (
               <div className="mt-4 grid gap-3 border-t border-white/8 pt-4 text-sm sm:grid-cols-2">
+                <div><span className="text-xs text-ink-500">Sender</span><div className="text-ink-200">{b.senderName || "—"}</div></div>
+                <div><span className="text-xs text-ink-500">Receiver (Consignee)</span><div className="text-ink-200">{b.receiverName || "—"}</div></div>
+                <div className="whitespace-pre-wrap"><span className="text-xs text-ink-500">Sender address</span><div className="text-ink-200">{b.senderAddress || "—"}</div></div>
+                <div className="whitespace-pre-wrap"><span className="text-xs text-ink-500">Receiver delivery address</span><div className="text-ink-200">{b.receiverAddress || "—"}</div></div>
+                <div><span className="text-xs text-ink-500">Sender contact</span><div className="text-ink-200">{[b.senderPhone, b.senderEmail].filter(Boolean).join(" · ") || "—"}</div></div>
+                <div><span className="text-xs text-ink-500">Receiver contact</span><div className="text-ink-200">{[b.receiverPhone, b.receiverEmail].filter(Boolean).join(" · ") || "—"}</div></div>
                 <div><span className="text-xs text-ink-500">Email</span><div className="text-ink-200">{b.email}</div></div>
                 <div><span className="text-xs text-ink-500">Phone</span><div className="text-ink-200">{b.phone || "—"}</div></div>
                 <div><span className="text-xs text-ink-500">Ready date</span><div className="text-ink-200">{b.readyDate || "—"}</div></div>
+                <div><span className="text-xs text-ink-500">ETA</span><div className="text-ink-200">{b.eta || "—"}</div></div>
                 <div><span className="text-xs text-ink-500">Incoterm</span><div className="text-ink-200">{b.incoterm || "—"}</div></div>
                 <div className="sm:col-span-2"><span className="text-xs text-ink-500">Cargo</span><div className="text-ink-200">{b.description || "—"}</div></div>
                 <div><span className="text-xs text-ink-500">Weight</span><div className="text-ink-200">{b.weight || "—"}</div></div>
                 <div><span className="text-xs text-ink-500">Units</span><div className="text-ink-200">{b.units || "—"}</div></div>
                 {b.notes && (
-                  <div className="sm:col-span-2"><span className="text-xs text-ink-500">Notes</span><div className="text-ink-200">{b.notes}</div></div>
+                  <div className="whitespace-pre-wrap sm:col-span-2"><span className="text-xs text-ink-500">Comments / special instructions</span><div className="text-ink-200">{b.notes}</div></div>
                 )}
 
                 <div className="sm:col-span-2">

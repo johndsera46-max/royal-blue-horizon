@@ -13,6 +13,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
   }
 
+  if (!body.senderName?.trim() || !body.senderAddress?.trim()) {
+    return NextResponse.json({ error: "Sender name and address are required." }, { status: 400 });
+  }
+  if (!body.receiverName?.trim() || !body.receiverAddress?.trim()) {
+    return NextResponse.json({ error: "Receiver name and delivery address are required." }, { status: 400 });
+  }
   if (!body.origin?.trim() || !body.destination?.trim()) {
     return NextResponse.json({ error: "Origin and destination are required." }, { status: 400 });
   }
@@ -22,6 +28,9 @@ export async function POST(req: Request) {
   if (!body.email || !/^\S+@\S+\.\S+$/.test(body.email)) {
     return NextResponse.json({ error: "A valid email is required." }, { status: 400 });
   }
+  if ((body.notes ?? "").length > 4000) {
+    return NextResponse.json({ error: "Comments must be 4,000 characters or fewer." }, { status: 400 });
+  }
   const mode = VALID_MODES.has(body.mode ?? "") ? (body.mode as BookingData["mode"]) : "ocean";
   const contactMethod = VALID_CONTACT.has(body.contactMethod ?? "")
     ? (body.contactMethod as BookingData["contactMethod"])
@@ -29,9 +38,18 @@ export async function POST(req: Request) {
 
   const booking = await createBooking({
     mode,
+    senderName: body.senderName.trim(),
+    senderAddress: body.senderAddress.trim(),
+    senderPhone: body.senderPhone ?? "",
+    senderEmail: body.senderEmail ?? "",
+    receiverName: body.receiverName.trim(),
+    receiverAddress: body.receiverAddress.trim(),
+    receiverPhone: body.receiverPhone ?? "",
+    receiverEmail: body.receiverEmail ?? "",
     origin: body.origin.trim(),
     destination: body.destination.trim(),
     readyDate: body.readyDate ?? "",
+    eta: body.eta ?? "",
     incoterm: body.incoterm ?? "",
     cargoType: body.cargoType ?? "",
     description: body.description ?? "",

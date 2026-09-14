@@ -13,9 +13,9 @@ import {
   CheckCircle2,
   Lock,
 } from "lucide-react";
-import { EMPTY_BOOKING, type BookingData } from "@/lib/booking";
+import { EMPTY_BOOKING, NOTES_MAX_LENGTH, type BookingData } from "@/lib/booking";
 
-const STEPS = ["Shipment", "Cargo", "Contact", "Review"] as const;
+const STEPS = ["Parties", "Shipment", "Cargo", "Contact", "Review"] as const;
 type Errors = Partial<Record<keyof BookingData, string>>;
 
 const MODES: { value: BookingData["mode"]; label: string; icon: typeof Ship }[] = [
@@ -61,15 +61,21 @@ export default function BookingForm() {
   function validateStep(index: number): boolean {
     const next: Errors = {};
     if (index === 0) {
+      if (!data.senderName.trim()) next.senderName = "Enter the sender's full name.";
+      if (!data.senderAddress.trim()) next.senderAddress = "Enter the sender's complete address.";
+      if (!data.receiverName.trim()) next.receiverName = "Enter the receiver's full name.";
+      if (!data.receiverAddress.trim()) next.receiverAddress = "Enter the receiver's complete delivery address.";
+    }
+    if (index === 1) {
       if (!data.origin.trim()) next.origin = "Enter an origin city or port.";
       if (!data.destination.trim()) next.destination = "Enter a destination city or port.";
       if (!data.readyDate) next.readyDate = "Choose a ready-to-ship date.";
     }
-    if (index === 1) {
+    if (index === 2) {
       if (!data.description.trim()) next.description = "Describe the cargo being shipped.";
       if (!data.weight.trim()) next.weight = "Enter an approximate total weight.";
     }
-    if (index === 2) {
+    if (index === 3) {
       if (!data.fullName.trim()) next.fullName = "Enter your full name.";
       if (!data.company.trim()) next.company = "Enter your company name.";
       if (!/^\S+@\S+\.\S+$/.test(data.email)) next.email = "Enter a valid business email.";
@@ -85,8 +91,8 @@ export default function BookingForm() {
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!validateStep(2)) {
-      setStep(2);
+    if (!validateStep(3)) {
+      setStep(3);
       return;
     }
     setSubmitting(true);
@@ -175,6 +181,88 @@ export default function BookingForm() {
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
           >
             {step === 0 && (
+              <div className="space-y-6">
+                <div>
+                  <h3 className="font-display text-sm font-medium text-ink-100">Sender (Shipper)</h3>
+                  <div className="mt-3 grid gap-5 sm:grid-cols-2">
+                    <Field label="Sender's full name" error={errors.senderName}>
+                      <input
+                        className={inputClass}
+                        placeholder="Jordan Alabi"
+                        value={data.senderName}
+                        onChange={(e) => set("senderName", e.target.value)}
+                      />
+                    </Field>
+                    <Field label="Sender's phone">
+                      <input
+                        className={inputClass}
+                        placeholder="+1 555 010 2947"
+                        value={data.senderPhone}
+                        onChange={(e) => set("senderPhone", e.target.value)}
+                      />
+                    </Field>
+                    <Field label="Complete pickup address" error={errors.senderAddress}>
+                      <textarea
+                        className={`${inputClass} min-h-20 resize-y`}
+                        placeholder="Street address, city, state/region, postal code, country"
+                        value={data.senderAddress}
+                        onChange={(e) => set("senderAddress", e.target.value)}
+                      />
+                    </Field>
+                    <Field label="Sender's email">
+                      <input
+                        type="email"
+                        className={inputClass}
+                        placeholder="jordan@atlasmfg.com"
+                        value={data.senderEmail}
+                        onChange={(e) => set("senderEmail", e.target.value)}
+                      />
+                    </Field>
+                  </div>
+                </div>
+
+                <div className="border-t border-white/8 pt-6">
+                  <h3 className="font-display text-sm font-medium text-ink-100">Receiver (Consignee)</h3>
+                  <div className="mt-3 grid gap-5 sm:grid-cols-2">
+                    <Field label="Receiver's full name" error={errors.receiverName}>
+                      <input
+                        className={inputClass}
+                        placeholder="Amara Chen"
+                        value={data.receiverName}
+                        onChange={(e) => set("receiverName", e.target.value)}
+                      />
+                    </Field>
+                    <Field label="Receiver's phone">
+                      <input
+                        className={inputClass}
+                        placeholder="+31 20 555 0192"
+                        value={data.receiverPhone}
+                        onChange={(e) => set("receiverPhone", e.target.value)}
+                      />
+                    </Field>
+                    <Field label="Complete delivery address" error={errors.receiverAddress}>
+                      <textarea
+                        className={`${inputClass} min-h-20 resize-y`}
+                        placeholder="Street address, city, state/region, postal code, country"
+                        value={data.receiverAddress}
+                        onChange={(e) => set("receiverAddress", e.target.value)}
+                      />
+                    </Field>
+                    <Field label="Receiver's email">
+                      <input
+                        type="email"
+                        className={inputClass}
+                        placeholder="amara@destinationco.nl"
+                        value={data.receiverEmail}
+                        onChange={(e) => set("receiverEmail", e.target.value)}
+                      />
+                    </Field>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {step === 1 && (
               <div className="space-y-5">
                 <div>
                   <span className="text-sm font-medium text-ink-200">Mode of transport</span>
@@ -214,13 +302,21 @@ export default function BookingForm() {
                     />
                   </Field>
                 </div>
-                <div className="grid gap-5 sm:grid-cols-2">
+                <div className="grid gap-5 sm:grid-cols-3">
                   <Field label="Ready to ship" error={errors.readyDate}>
                     <input
                       type="date"
                       className={inputClass}
                       value={data.readyDate}
                       onChange={(e) => set("readyDate", e.target.value)}
+                    />
+                  </Field>
+                  <Field label="Estimated date of arrival (ETA)">
+                    <input
+                      type="date"
+                      className={inputClass}
+                      value={data.eta}
+                      onChange={(e) => set("eta", e.target.value)}
                     />
                   </Field>
                   <Field label="Incoterm">
@@ -238,7 +334,7 @@ export default function BookingForm() {
               </div>
             )}
 
-            {step === 1 && (
+            {step === 2 && (
               <div className="space-y-5">
                 <Field label="Cargo description" error={errors.description}>
                   <textarea
@@ -277,18 +373,22 @@ export default function BookingForm() {
                     />
                   </Field>
                 </div>
-                <Field label="Special handling notes (optional)">
+                <Field label="Comments / special instructions (optional)">
                   <textarea
-                    className={`${inputClass} min-h-20 resize-y`}
-                    placeholder="Temperature control, fragile handling, stacking limits…"
+                    className={`${inputClass} min-h-56 resize-y`}
+                    placeholder="Temperature control, fragile handling, stacking limits, customs notes, delivery instructions…"
+                    maxLength={NOTES_MAX_LENGTH}
                     value={data.notes}
                     onChange={(e) => set("notes", e.target.value)}
                   />
+                  <div className="mt-1.5 text-right text-xs text-ink-500">
+                    {data.notes.length.toLocaleString()} / {NOTES_MAX_LENGTH.toLocaleString()} characters
+                  </div>
                 </Field>
               </div>
             )}
 
-            {step === 2 && (
+            {step === 3 && (
               <div className="space-y-5">
                 <div className="grid gap-5 sm:grid-cols-2">
                   <Field label="Full name" error={errors.fullName}>
@@ -349,13 +449,18 @@ export default function BookingForm() {
               </div>
             )}
 
-            {step === 3 && (
+            {step === 4 && (
               <div className="space-y-6">
                 <div className="grid gap-4 sm:grid-cols-2">
                   {[
+                    ["Sender", `${data.senderName || "—"}`],
+                    ["Sender address", data.senderAddress || "—"],
+                    ["Receiver", `${data.receiverName || "—"}`],
+                    ["Receiver address", data.receiverAddress || "—"],
                     ["Mode", data.mode],
                     ["Route", `${data.origin || "—"} → ${data.destination || "—"}`],
                     ["Ready date", data.readyDate || "—"],
+                    ["ETA", data.eta || "—"],
                     ["Incoterm", data.incoterm],
                     ["Cargo", data.description || "—"],
                     ["Weight", data.weight ? `${data.weight} kg` : "—"],

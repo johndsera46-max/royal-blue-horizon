@@ -14,9 +14,18 @@ interface BookingRow {
   id: string;
   reference: string;
   mode: string;
+  sender_name: string;
+  sender_address: string;
+  sender_phone: string;
+  sender_email: string;
+  receiver_name: string;
+  receiver_address: string;
+  receiver_phone: string;
+  receiver_email: string;
   origin: string;
   destination: string;
   ready_date: string;
+  eta: string;
   incoterm: string;
   cargo_type: string;
   description: string;
@@ -37,9 +46,18 @@ function toBooking(row: BookingRow): BookingRecord {
     id: row.id,
     reference: row.reference,
     mode: row.mode as BookingData["mode"],
+    senderName: row.sender_name,
+    senderAddress: row.sender_address,
+    senderPhone: row.sender_phone,
+    senderEmail: row.sender_email,
+    receiverName: row.receiver_name,
+    receiverAddress: row.receiver_address,
+    receiverPhone: row.receiver_phone,
+    receiverEmail: row.receiver_email,
     origin: row.origin,
     destination: row.destination,
     readyDate: row.ready_date,
+    eta: row.eta,
     incoterm: row.incoterm,
     cargoType: row.cargo_type,
     description: row.description,
@@ -65,16 +83,27 @@ export async function createBooking(input: BookingData): Promise<BookingRecord> 
   const reference = generateReference();
   const { rows } = await getPool().query<BookingRow>(
     `INSERT INTO bookings
-      (reference, mode, origin, destination, ready_date, incoterm, cargo_type, description,
+      (reference, mode, sender_name, sender_address, sender_phone, sender_email,
+       receiver_name, receiver_address, receiver_phone, receiver_email,
+       origin, destination, ready_date, eta, incoterm, cargo_type, description,
        weight, units, notes, full_name, company, email, phone, contact_method)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25)
      RETURNING *`,
     [
       reference,
       input.mode,
+      input.senderName,
+      input.senderAddress,
+      input.senderPhone,
+      input.senderEmail,
+      input.receiverName,
+      input.receiverAddress,
+      input.receiverPhone,
+      input.receiverEmail,
       input.origin,
       input.destination,
       input.readyDate,
+      input.eta,
       input.incoterm,
       input.cargoType,
       input.description,

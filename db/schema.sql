@@ -36,9 +36,18 @@ CREATE TABLE IF NOT EXISTS bookings (
   id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   reference        TEXT UNIQUE NOT NULL,
   mode             TEXT NOT NULL,
+  sender_name      TEXT NOT NULL DEFAULT '',
+  sender_address   TEXT NOT NULL DEFAULT '',
+  sender_phone     TEXT NOT NULL DEFAULT '',
+  sender_email     TEXT NOT NULL DEFAULT '',
+  receiver_name    TEXT NOT NULL DEFAULT '',
+  receiver_address TEXT NOT NULL DEFAULT '',
+  receiver_phone   TEXT NOT NULL DEFAULT '',
+  receiver_email   TEXT NOT NULL DEFAULT '',
   origin           TEXT NOT NULL,
   destination      TEXT NOT NULL,
   ready_date       TEXT NOT NULL DEFAULT '',
+  eta              TEXT NOT NULL DEFAULT '',
   incoterm         TEXT NOT NULL DEFAULT '',
   cargo_type       TEXT NOT NULL DEFAULT '',
   description      TEXT NOT NULL DEFAULT '',
@@ -54,3 +63,15 @@ CREATE TABLE IF NOT EXISTS bookings (
   created_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at       TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- Idempotent patch for databases that already have the bookings table from
+-- before sender/receiver/ETA were added (safe to re-run).
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS sender_name      TEXT NOT NULL DEFAULT '';
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS sender_address   TEXT NOT NULL DEFAULT '';
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS sender_phone     TEXT NOT NULL DEFAULT '';
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS sender_email     TEXT NOT NULL DEFAULT '';
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS receiver_name    TEXT NOT NULL DEFAULT '';
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS receiver_address TEXT NOT NULL DEFAULT '';
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS receiver_phone   TEXT NOT NULL DEFAULT '';
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS receiver_email   TEXT NOT NULL DEFAULT '';
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS eta              TEXT NOT NULL DEFAULT '';
