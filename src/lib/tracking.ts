@@ -23,6 +23,14 @@ export interface Shipment {
   mode: ShipmentMode;
   status: ShipmentStatus;
   statusLabel: string;
+  senderName: string;
+  senderAddress: string;
+  senderPhone: string;
+  senderEmail: string;
+  receiverName: string;
+  receiverAddress: string;
+  receiverPhone: string;
+  receiverEmail: string;
   origin: RoutePoint;
   destination: RoutePoint;
   progress: number;

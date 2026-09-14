@@ -16,6 +16,14 @@ CREATE TABLE IF NOT EXISTS shipments (
   mode               TEXT NOT NULL DEFAULT 'ocean',      -- ocean | air | multimodal
   status             TEXT NOT NULL DEFAULT 'in-transit',  -- in-transit | customs | delivered | delayed
   status_label       TEXT NOT NULL DEFAULT 'In transit',
+  sender_name        TEXT NOT NULL DEFAULT '',
+  sender_address     TEXT NOT NULL DEFAULT '',
+  sender_phone       TEXT NOT NULL DEFAULT '',
+  sender_email       TEXT NOT NULL DEFAULT '',
+  receiver_name      TEXT NOT NULL DEFAULT '',
+  receiver_address   TEXT NOT NULL DEFAULT '',
+  receiver_phone     TEXT NOT NULL DEFAULT '',
+  receiver_email     TEXT NOT NULL DEFAULT '',
   origin_code        TEXT NOT NULL,
   origin_city        TEXT NOT NULL,
   origin_country     TEXT NOT NULL,
@@ -31,6 +39,15 @@ CREATE TABLE IF NOT EXISTS shipments (
   created_at         TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at         TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+ALTER TABLE shipments ADD COLUMN IF NOT EXISTS sender_name      TEXT NOT NULL DEFAULT '';
+ALTER TABLE shipments ADD COLUMN IF NOT EXISTS sender_address   TEXT NOT NULL DEFAULT '';
+ALTER TABLE shipments ADD COLUMN IF NOT EXISTS sender_phone     TEXT NOT NULL DEFAULT '';
+ALTER TABLE shipments ADD COLUMN IF NOT EXISTS sender_email     TEXT NOT NULL DEFAULT '';
+ALTER TABLE shipments ADD COLUMN IF NOT EXISTS receiver_name    TEXT NOT NULL DEFAULT '';
+ALTER TABLE shipments ADD COLUMN IF NOT EXISTS receiver_address TEXT NOT NULL DEFAULT '';
+ALTER TABLE shipments ADD COLUMN IF NOT EXISTS receiver_phone   TEXT NOT NULL DEFAULT '';
+ALTER TABLE shipments ADD COLUMN IF NOT EXISTS receiver_email   TEXT NOT NULL DEFAULT '';
 
 CREATE TABLE IF NOT EXISTS bookings (
   id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),

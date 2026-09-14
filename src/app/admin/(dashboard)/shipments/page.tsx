@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, Trash2, Pencil, X, Save } from "lucide-react";
+import { Plus, Trash2, Pencil, X, Save, FileText } from "lucide-react";
 import type { Shipment, TimelineStep } from "@/lib/tracking";
 
 type FormState = {
@@ -9,6 +9,14 @@ type FormState = {
   mode: Shipment["mode"];
   status: Shipment["status"];
   statusLabel: string;
+  senderName: string;
+  senderAddress: string;
+  senderPhone: string;
+  senderEmail: string;
+  receiverName: string;
+  receiverAddress: string;
+  receiverPhone: string;
+  receiverEmail: string;
   originCode: string;
   originCity: string;
   originCountry: string;
@@ -28,6 +36,14 @@ const EMPTY_FORM: FormState = {
   mode: "ocean",
   status: "in-transit",
   statusLabel: "In transit",
+  senderName: "",
+  senderAddress: "",
+  senderPhone: "",
+  senderEmail: "",
+  receiverName: "",
+  receiverAddress: "",
+  receiverPhone: "",
+  receiverEmail: "",
   originCode: "",
   originCity: "",
   originCountry: "",
@@ -51,6 +67,14 @@ function shipmentToForm(s: Shipment): FormState {
     mode: s.mode,
     status: s.status,
     statusLabel: s.statusLabel,
+    senderName: s.senderName,
+    senderAddress: s.senderAddress,
+    senderPhone: s.senderPhone,
+    senderEmail: s.senderEmail,
+    receiverName: s.receiverName,
+    receiverAddress: s.receiverAddress,
+    receiverPhone: s.receiverPhone,
+    receiverEmail: s.receiverEmail,
     originCode: s.origin.code,
     originCity: s.origin.city,
     originCountry: s.origin.country,
@@ -132,6 +156,14 @@ export default function AdminShipmentsPage() {
       mode: form.mode,
       status: form.status,
       statusLabel: form.statusLabel,
+      senderName: form.senderName,
+      senderAddress: form.senderAddress,
+      senderPhone: form.senderPhone,
+      senderEmail: form.senderEmail,
+      receiverName: form.receiverName,
+      receiverAddress: form.receiverAddress,
+      receiverPhone: form.receiverPhone,
+      receiverEmail: form.receiverEmail,
       origin: { code: form.originCode, city: form.originCity, country: form.originCountry },
       destination: { code: form.destinationCode, city: form.destinationCity, country: form.destinationCountry },
       progress: Math.min(Math.max(Number(form.progress) / 100, 0), 1),
@@ -239,7 +271,53 @@ export default function AdminShipmentsPage() {
                 className={`${inputClass} mt-1`}
               />
             </label>
+          </div>
 
+          <div className="mt-6 border-t border-white/8 pt-5">
+            <h3 className="text-sm font-medium text-ink-200">Sender (Shipper)</h3>
+            <div className="mt-3 grid gap-4 sm:grid-cols-3">
+              <label className="block">
+                <span className="text-xs text-ink-400">Sender's full name</span>
+                <input value={form.senderName} onChange={(e) => setForm({ ...form, senderName: e.target.value })} className={`${inputClass} mt-1`} />
+              </label>
+              <label className="block">
+                <span className="text-xs text-ink-400">Sender's phone</span>
+                <input value={form.senderPhone} onChange={(e) => setForm({ ...form, senderPhone: e.target.value })} className={`${inputClass} mt-1`} />
+              </label>
+              <label className="block">
+                <span className="text-xs text-ink-400">Sender's email</span>
+                <input type="email" value={form.senderEmail} onChange={(e) => setForm({ ...form, senderEmail: e.target.value })} className={`${inputClass} mt-1`} />
+              </label>
+              <label className="block sm:col-span-3">
+                <span className="text-xs text-ink-400">Complete pickup address</span>
+                <textarea value={form.senderAddress} onChange={(e) => setForm({ ...form, senderAddress: e.target.value })} className={`${inputClass} mt-1 min-h-16 resize-y`} />
+              </label>
+            </div>
+          </div>
+
+          <div className="mt-6 border-t border-white/8 pt-5">
+            <h3 className="text-sm font-medium text-ink-200">Receiver (Consignee)</h3>
+            <div className="mt-3 grid gap-4 sm:grid-cols-3">
+              <label className="block">
+                <span className="text-xs text-ink-400">Receiver's full name</span>
+                <input value={form.receiverName} onChange={(e) => setForm({ ...form, receiverName: e.target.value })} className={`${inputClass} mt-1`} />
+              </label>
+              <label className="block">
+                <span className="text-xs text-ink-400">Receiver's phone</span>
+                <input value={form.receiverPhone} onChange={(e) => setForm({ ...form, receiverPhone: e.target.value })} className={`${inputClass} mt-1`} />
+              </label>
+              <label className="block">
+                <span className="text-xs text-ink-400">Receiver's email</span>
+                <input type="email" value={form.receiverEmail} onChange={(e) => setForm({ ...form, receiverEmail: e.target.value })} className={`${inputClass} mt-1`} />
+              </label>
+              <label className="block sm:col-span-3">
+                <span className="text-xs text-ink-400">Complete delivery address</span>
+                <textarea value={form.receiverAddress} onChange={(e) => setForm({ ...form, receiverAddress: e.target.value })} className={`${inputClass} mt-1 min-h-16 resize-y`} />
+              </label>
+            </div>
+          </div>
+
+          <div className="mt-6 grid gap-4 border-t border-white/8 pt-5 sm:grid-cols-3">
             <label className="block">
               <span className="text-xs text-ink-400">Origin code</span>
               <input required value={form.originCode} onChange={(e) => setForm({ ...form, originCode: e.target.value })} className={`${inputClass} mt-1`} />
@@ -358,6 +436,13 @@ export default function AdminShipmentsPage() {
                 <td className="px-4 py-3 font-mono text-ink-300">{Math.round(s.progress * 100)}%</td>
                 <td className="px-4 py-3">
                   <div className="flex justify-end gap-2">
+                    <a
+                      href={`/api/admin/shipments/${s.trackingNumber}/receipt`}
+                      title="Download receipt (PDF)"
+                      className="text-ink-400 hover:text-ink-100"
+                    >
+                      <FileText className="h-4 w-4" />
+                    </a>
                     <button onClick={() => startEdit(s)} className="text-ink-400 hover:text-ink-100">
                       <Pencil className="h-4 w-4" />
                     </button>
